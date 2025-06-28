@@ -32,17 +32,26 @@ document.getElementById('postForm').addEventListener('submit', async (e) => {
     const { data, error } = await supabase.storage.from('images').upload(fileName, imageFile)
     if (error) {
       alert('画像アップロードに失敗しました')
+      console.error('Upload error:', error)
       return
     }
-    const { data: publicUrl } = supabase.storage.from('images').getPublicUrl(fileName)
-    image_url = publicUrl.publicUrl
+    const { data: publicUrlData } = supabase.storage.from('images').getPublicUrl(fileName)
+    image_url = publicUrlData.publicUrl
   }
 
-  await supabase.from('posts').insert([{
+  const { error: insertError } = await supabase.from('posts').insert([{
     user_name: currentUser,
     comment: comment,
     image_url: image_url
   }])
+
+  if (insertError) {
+    alert('投稿に失敗しました')
+    console.error('Insert error:', insertError)
+    return
+  }
+
+  console.log('投稿成功:', { comment, image_url })
 
   document.getElementById('comment').value = ''
   document.getElementById('image').value = ''
@@ -51,6 +60,13 @@ document.getElementById('postForm').addEventListener('submit', async (e) => {
 
 const loadPosts = async () => {
   const { data, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false })
+  if (error) {
+    console.error('読み込みエラー:', error)
+    return
+  }
+
+  console.log('取得した投稿一覧:', data)
+
   const postsDiv = document.getElementById('posts')
   postsDiv.innerHTML = ''
 
@@ -75,6 +91,3 @@ window.addEventListener('DOMContentLoaded', () => {
     loadPosts()
   }
 })
-
-// HTML の onclick に対応させる
-window.login = login

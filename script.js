@@ -59,7 +59,7 @@ const loadPosts = async () => {
     div.className = 'post'
     div.innerHTML = `
       <p><strong>${post.user_name}</strong>: ${post.comment}</p>
-      ${post.image_url ? `<img src="\${post.image_url}" width="200"/>` : ''}
+      ${post.image_url ? `<img src="${post.image_url}" width="200"/>` : ''}
       <hr />
     `
     postsDiv.appendChild(div)
@@ -75,3 +75,6 @@ window.addEventListener('DOMContentLoaded', () => {
     loadPosts()
   }
 })
+
+// HTML の onclick に対応させる
+window.login = login

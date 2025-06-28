@@ -2,10 +2,12 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const SUPABASE_URL = 'https://itxwvrjbrswgqsdcvbmh.supabase.co'
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0eHd2cmpicnN3Z3FzZGN2Ym1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwOTk1ODksImV4cCI6MjA2NjY3NTU4OX0.xC5Xg3bgD8lTjSPodU1LW432A4zTWJXBsJ665mmExQU'
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 let currentUser = null
 
+// ログイン処理
 const login = () => {
   const name = document.getElementById('name').value
   const password = document.getElementById('password').value
@@ -21,6 +23,7 @@ const login = () => {
   }
 }
 
+// 投稿処理
 document.getElementById('postForm').addEventListener('submit', async (e) => {
   e.preventDefault()
   const comment = document.getElementById('comment').value
@@ -28,60 +31,67 @@ document.getElementById('postForm').addEventListener('submit', async (e) => {
 
   let image_url = ''
   if (imageFile) {
-    const fileName = Date.now() + '_' + imageFile.name
-    const { data, error } = await supabase.storage.from('images').upload(fileName, imageFile)
+    const fileName = `${Date.now()}_${imageFile.name}`
+
+    const { data, error } = await supabase
+      .storage
+      .from('images') // ← Supabase ストレージのバケット名
+      .upload(fileName, imageFile)
+
     if (error) {
+      console.error('アップロードエラー:', error.message)
       alert('画像アップロードに失敗しました')
-      console.error('Upload error:', error)
       return
     }
-    const { data: publicUrlData } = supabase.storage.from('images').getPublicUrl(fileName)
+
+    const { data: publicUrlData } = supabase
+      .storage
+      .from('images')
+      .getPublicUrl(fileName)
+
     image_url = publicUrlData.publicUrl
   }
 
-  const { error: insertError } = await supabase.from('posts').insert([{
-    user_name: currentUser,
-    comment: comment,
-    image_url: image_url
-  }])
-
-  if (insertError) {
-    alert('投稿に失敗しました')
-    console.error('Insert error:', insertError)
-    return
-  }
-
-  console.log('投稿成功:', { comment, image_url })
+  await supabase.from('posts').insert([
+    {
+      user_name: currentUser,
+      comment: comment,
+      image_url: image_url
+    }
+  ])
 
   document.getElementById('comment').value = ''
   document.getElementById('image').value = ''
   loadPosts()
 })
 
+// 投稿一覧を表示
 const loadPosts = async () => {
-  const { data, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false })
-  if (error) {
-    console.error('読み込みエラー:', error)
-    return
-  }
-
-  console.log('取得した投稿一覧:', data)
+  const { data, error } = await supabase
+    .from('posts')
+    .select('*')
+    .order('created_at', { ascending: false })
 
   const postsDiv = document.getElementById('posts')
   postsDiv.innerHTML = ''
 
-  data.forEach(post => {
-    const div = document.createElement('div')
-    div.className = 'post'
-    div.innerHTML = `
-      <p><strong>${post.user_name}</strong>: ${post.comment}</p>
-      ${post.image_url ? `<img src="${post.image_url}" width="200"/>` : ''}
-      <hr />
-    `
-    postsDiv.appendChild(div)
-  })
+  if (data) {
+    data.forEach(post => {
+      const div = document.createElement('div')
+      div.className = 'post'
+      div.innerHTML = `
+        <p><strong>${post.user_name}</strong>: ${post.comment}</p>
+        ${post.image_url ? `<img src="${post.image_url}" width="200"/>` : ''}
+        <hr />
+      `
+      postsDiv.appendChild(div)
+    })
+  } else {
+    console.error('投稿取得エラー:', error?.message)
+  }
 }
 
+// ページ読み込み時にログイン状態を確認
 window.addEventListener('DOMContentLoaded', () => {
   const name = localStorage.getItem('userName')
   if (name) {

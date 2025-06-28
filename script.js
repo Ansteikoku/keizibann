@@ -1,6 +1,12 @@
-const SUPABASE_URL = 'https://itxwvrjbrswgqsdcvbmh.supabase.co' // ← あなたのURL
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0eHd2cmpicnN3Z3FzZGN2Ym1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwOTk1ODksImV4cCI6MjA2NjY3NTU4OX0.xC5Xg3bgD8lTjSPodU1LW432A4zTWJXBsJ665mmExQU'             // ← あなたのAnonキー
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+// SupabaseクライアントをESMとしてインポート
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+// Supabaseプロジェクト情報
+const SUPABASE_URL = 'https://itxwvrjbrswgqsdcvbmh.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0eHd2cmpicnN3Z3FzZGN2Ym1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwOTk1ODksImV4cCI6MjA2NjY3NTU4OX0.xC5Xg3bgD8lTjSPodU1LW432A4zTWJXBsJ665mmExQU'
+
+// Supabaseクライアント作成
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 let currentUser = null
 
@@ -11,7 +17,7 @@ const login = () => {
 
   if (password === 'wakakusa') {
     currentUser = name
-    localStorage.setItem('userName', name) // ← ログイン名を保存
+    localStorage.setItem('userName', name)
     document.getElementById('login').style.display = 'none'
     document.getElementById('bbs').style.display = 'block'
     loadPosts()
@@ -29,22 +35,29 @@ document.getElementById('postForm').addEventListener('submit', async (e) => {
   let image_url = ''
   if (imageFile) {
     const fileName = Date.now() + '_' + imageFile.name
-    const { data, error } = await supabase.storage.from('your-bucket').upload(fileName, imageFile)
-    if (error) {
+    const { error: uploadError } = await supabase.storage.from('images').upload(fileName, imageFile)
+
+    if (uploadError) {
       alert('画像アップロードに失敗しました')
       return
     }
-    const { data: publicUrl } = supabase.storage.from('your-bucket').getPublicUrl(fileName)
+
+    const { data: publicUrl } = supabase.storage.from('images').getPublicUrl(fileName)
     image_url = publicUrl.publicUrl
   }
 
-  await supabase.from('posts').insert([
+  const { error: insertError } = await supabase.from('posts').insert([
     {
       user_name: currentUser,
       comment: comment,
       image_url: image_url
     }
   ])
+
+  if (insertError) {
+    alert('投稿に失敗しました')
+    return
+  }
 
   document.getElementById('comment').value = ''
   document.getElementById('image').value = ''
@@ -54,6 +67,11 @@ document.getElementById('postForm').addEventListener('submit', async (e) => {
 // 投稿一覧読み込み
 const loadPosts = async () => {
   const { data, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false })
+
+  if (error) {
+    alert('投稿の読み込みに失敗しました')
+    return
+  }
 
   const postsDiv = document.getElementById('posts')
   postsDiv.innerHTML = ''
@@ -80,3 +98,6 @@ window.addEventListener('DOMContentLoaded', () => {
     loadPosts()
   }
 })
+
+// login関数をグローバルに公開（HTMLのonclick用）
+window.login = login

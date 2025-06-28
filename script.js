@@ -1,5 +1,5 @@
 const SUPABASE_URL = 'https://itxwvrjbrswgqsdcvbmh.supabase.co' // ← あなたのURL
-const SUPABASE_KEY = 'process.env.SUPABASE_KEY'             // ← あなたのAnonキー
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0eHd2cmpicnN3Z3FzZGN2Ym1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwOTk1ODksImV4cCI6MjA2NjY3NTU4OX0.xC5Xg3bgD8lTjSPodU1LW432A4zTWJXBsJ665mmExQU'             // ← あなたのAnonキー
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
 let currentUser = null

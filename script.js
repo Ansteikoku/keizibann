@@ -4,12 +4,14 @@ const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
 
 let currentUser = null
 
+// ログイン処理
 const login = () => {
   const name = document.getElementById('name').value
   const password = document.getElementById('password').value
 
   if (password === 'wakakusa') {
     currentUser = name
+    localStorage.setItem('userName', name) // ← ログイン名を保存
     document.getElementById('login').style.display = 'none'
     document.getElementById('bbs').style.display = 'block'
     loadPosts()
@@ -18,6 +20,7 @@ const login = () => {
   }
 }
 
+// 投稿処理
 document.getElementById('postForm').addEventListener('submit', async (e) => {
   e.preventDefault()
   const comment = document.getElementById('comment').value
@@ -48,6 +51,7 @@ document.getElementById('postForm').addEventListener('submit', async (e) => {
   loadPosts()
 })
 
+// 投稿一覧読み込み
 const loadPosts = async () => {
   const { data, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false })
 
@@ -65,3 +69,14 @@ const loadPosts = async () => {
     postsDiv.appendChild(div)
   })
 }
+
+// ページ読み込み時：ログイン済みなら掲示板を表示
+window.addEventListener('DOMContentLoaded', () => {
+  const name = localStorage.getItem('userName')
+  if (name) {
+    currentUser = name
+    document.getElementById('login').style.display = 'none'
+    document.getElementById('bbs').style.display = 'block'
+    loadPosts()
+  }
+})

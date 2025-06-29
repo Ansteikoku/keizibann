@@ -1,43 +1,67 @@
 body {
-  font-family: "Helvetica Neue", sans-serif;
-  background: linear-gradient(to right, #dff1ff, #ffffff);
+  font-family: "Helvetica", "Arial", sans-serif;
+  background-color: #f9f9f9;
   color: #333;
+  margin: 0;
   padding: 20px;
 }
 
 h2 {
-  color: #2c7edb;
+  color: #2c7a7b;
+  text-align: center;
 }
 
-input, textarea {
-  padding: 10px;
-  margin: 5px 0;
+#login, #bbs {
+  max-width: 500px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+input[type="text"],
+input[type="password"],
+textarea {
   width: 100%;
-  max-width: 400px;
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 15px;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 16px;
+}
+
+textarea {
+  height: 80px;
+  resize: vertical;
 }
 
 button {
-  padding: 10px 20px;
-  background-color: #2c7edb;
+  background-color: #38a169;
   color: white;
+  padding: 10px 16px;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
+  font-size: 16px;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #1a5fb4;
+  background-color: #2f855a;
 }
 
 .post {
-  background: #f9f9f9;
-  border: 1px solid #ccc;
+  background-color: #e6fffa;
+  border: 1px solid #b2f5ea;
+  border-radius: 8px;
   padding: 10px;
-  border-radius: 8px;
-  margin-top: 10px;
+  margin-top: 15px;
 }
-img {
-  border-radius: 8px;
+
+.post img {
+  max-width: 100%;
+  border-radius: 6px;
+  margin-top: 10px;
 }

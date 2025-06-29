@@ -1,12 +1,11 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
 const SUPABASE_URL = 'https://itxwvrjbrswgqsdcvbmh.supabase.co'
-const SUPABASE_KEY = 'あなたのAnonキーをここに貼る'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
 
 let currentUser = null
 
-// ログイン処理
 const login = () => {
   const name = document.getElementById('name').value
   const password = document.getElementById('password').value
@@ -18,32 +17,39 @@ const login = () => {
     document.getElementById('bbs').style.display = 'block'
     loadPosts()
   } else {
-    document.getElementById('login-error').textContent = 'パスワードが違います'
+    document.getElementById('login-error').textContent = 'パスワードがちがいます'
   }
 }
 
-// 投稿処理（画像なし）
 document.getElementById('postForm').addEventListener('submit', async (e) => {
   e.preventDefault()
   const comment = document.getElementById('comment').value
 
-  await supabase.from('posts').insert([
-    {
-      user_name: currentUser,
-      comment: comment,
-    }
-  ])
+  if (!comment.trim()) return
+
+  const { error } = await supabase.from('Text').insert([{
+    user_name: currentUser,
+    comment: comment
+  }])
+
+  if (error) {
+    alert('投稿に失敗しました')
+    return
+  }
 
   document.getElementById('comment').value = ''
   loadPosts()
 })
 
-// 投稿一覧読み込み
 const loadPosts = async () => {
-  const { data, error } = await supabase.from('posts').select('*').order('created_at', { ascending: false })
-
+  const { data, error } = await supabase.from('Text').select('*').order('created_at', { ascending: false })
   const postsDiv = document.getElementById('posts')
   postsDiv.innerHTML = ''
+
+  if (error) {
+    postsDiv.innerHTML = '<p>投稿の読み込みに失敗しました</p>'
+    return
+  }
 
   data.forEach(post => {
     const div = document.createElement('div')
@@ -56,7 +62,6 @@ const loadPosts = async () => {
   })
 }
 
-// ページ読み込み時：ログイン済みなら掲示板を表示
 window.addEventListener('DOMContentLoaded', () => {
   const name = localStorage.getItem('userName')
   if (name) {

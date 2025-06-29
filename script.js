@@ -1,73 +1,74 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>コメント機能</title>
+</head>
+<body>
+  <h2>コメント一覧</h2>
+  <div id="comments"></div>
 
-const SUPABASE_URL = 'https://itxwvrjbrswgqsdcvbmh.supabase.co'
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+  <h3>コメントを投稿する</h3>
+  <form id="comment-form">
+    <input type="text" id="comment-text" placeholder="コメントを入力" required />
+    <button type="submit">送信</button>
+  </form>
 
-let currentUser = null
+  <!-- Supabase用のスクリプト -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    // SupabaseのURLとKEYをここに入力
+    const SUPABASE_URL = 'https://itxwvrjbrswgqsdcvbmh.supabase.co'; // ← 自分のURLに置き換えて
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0eHd2cmpicnN3Z3FzZGN2Ym1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwOTk1ODksImV4cCI6MjA2NjY3NTU4OX0.xC5Xg3bgD8lTjSPodU1LW432A4zTWJXBsJ665mmExQU';             // ← 自分のanonキーに置き換えて
 
-const login = () => {
-  const name = document.getElementById('name').value
-  const password = document.getElementById('password').value
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  if (password === 'わかくさ') {
-    currentUser = name
-    localStorage.setItem('userName', name)
-    document.getElementById('login').style.display = 'none'
-    document.getElementById('bbs').style.display = 'block'
-    loadPosts()
-  } else {
-    document.getElementById('login-error').textContent = 'パスワードがちがいます'
-  }
-}
+    const postId = 1; // ← 投稿ID。固定でもURLから取得でもOK
 
-document.getElementById('postForm').addEventListener('submit', async (e) => {
-  e.preventDefault()
-  const comment = document.getElementById('comment').value
+    async function fetchComments() {
+      const { data, error } = await supabase
+        .from('comments')
+        .select('*')
+        .eq('post_id', postId)
+        .order('created_at', { ascending: false });
 
-  if (!comment.trim()) return
+      if (error) {
+        console.error('読み込みエラー:', error);
+        return;
+      }
 
-  const { error } = await supabase.from('Text').insert([{
-    user_name: currentUser,
-    comment: comment
-  }])
+      const commentsDiv = document.getElementById('comments');
+      commentsDiv.innerHTML = '';
+      data.forEach(comment => {
+        const p = document.createElement('p');
+        p.textContent = comment.comment_text;
+        commentsDiv.appendChild(p);
+      });
+    }
 
-  if (error) {
-    alert('投稿に失敗しました')
-    return
-  }
+    // コメント送信処理
+    document.getElementById('comment-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const commentText = document.getElementById('comment-text').value;
 
-  document.getElementById('comment').value = ''
-  loadPosts()
-})
+      const { error } = await supabase.from('comments').insert([
+        {
+          post_id: postId,
+          comment_text: commentText
+        }
+      ]);
 
-const loadPosts = async () => {
-  const { data, error } = await supabase.from('Text').select('*').order('created_at', { ascending: false })
-  const postsDiv = document.getElementById('posts')
-  postsDiv.innerHTML = ''
+      if (error) {
+        console.error('投稿エラー:', error);
+        return;
+      }
 
-  if (error) {
-    postsDiv.innerHTML = '<p>投稿の読み込みに失敗しました</p>'
-    return
-  }
+      document.getElementById('comment-text').value = '';
+      fetchComments(); // 再読み込み
+    });
 
-  data.forEach(post => {
-    const div = document.createElement('div')
-    div.className = 'post'
-    div.innerHTML = `
-      <p><strong>${post.user_name}</strong>: ${post.comment}</p>
-      <hr />
-    `
-    postsDiv.appendChild(div)
-  })
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  const name = localStorage.getItem('userName')
-  if (name) {
-    currentUser = name
-    document.getElementById('login').style.display = 'none'
-    document.getElementById('bbs').style.display = 'block'
-    loadPosts()
-  }
-})
+    // 初期読み込み
+    fetchComments();
+  </script>
+</body>
+</html>

@@ -1,67 +1,56 @@
 body {
-  font-family: "Helvetica", "Arial", sans-serif;
-  background-color: #f9f9f9;
+  font-family: 'Arial', sans-serif;
+  background-color: #f5fff5;
   color: #333;
-  margin: 0;
-  padding: 20px;
+  margin: 2em;
 }
 
 h2 {
-  color: #2c7a7b;
-  text-align: center;
+  color: #2b8c2b;
 }
 
-#login, #bbs {
+#login, #main {
   max-width: 500px;
   margin: 0 auto;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 1em;
+  background: #ffffff;
+  border: 1px solid #cce0cc;
+  border-radius: 10px;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
 }
 
-input[type="text"],
-input[type="password"],
-textarea {
+input[type="text"], input[type="password"], textarea {
   width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  margin-bottom: 15px;
+  padding: 0.8em;
+  margin-top: 0.5em;
+  margin-bottom: 1em;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 5px;
   box-sizing: border-box;
-  font-size: 16px;
-}
-
-textarea {
-  height: 80px;
-  resize: vertical;
 }
 
 button {
-  background-color: #38a169;
+  background-color: #76c776;
   color: white;
-  padding: 10px 16px;
+  padding: 0.7em 1.2em;
   border: none;
-  border-radius: 6px;
-  font-size: 16px;
+  border-radius: 5px;
   cursor: pointer;
 }
 
 button:hover {
-  background-color: #2f855a;
+  background-color: #5cae5c;
 }
 
-.post {
-  background-color: #e6fffa;
-  border: 1px solid #b2f5ea;
-  border-radius: 8px;
+ul#comment-list {
+  list-style: none;
+  padding: 0;
+}
+
+ul#comment-list li {
+  background-color: #eef9ee;
+  margin-bottom: 10px;
   padding: 10px;
-  margin-top: 15px;
-}
-
-.post img {
-  max-width: 100%;
-  border-radius: 6px;
-  margin-top: 10px;
+  border-left: 4px solid #76c776;
+  border-radius: 5px;
 }

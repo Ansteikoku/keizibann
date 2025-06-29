@@ -7,22 +7,23 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- ログイン画面 -->
   <div id="login">
     <h2>🌱わかくさ掲示板 ログイン</h2>
-    <input type="text" id="name" placeholder="名前" />
+    <input type="text" id="username" placeholder="名前" />
     <input type="password" id="password" placeholder="ぱすわーど" />
     <button onclick="login()">ログイン</button>
-    <p id="login-error" style="color:red;"></p>
+    <p id="error" style="color:red;"></p>
   </div>
 
-  <div id="bbs" style="display:none;">
+  <!-- 掲示板画面 -->
+  <div id="main" style="display:none;">
     <h2>🌱わかくさ掲示板</h2>
-    <form id="postForm">
-      <textarea id="comment" placeholder="コメントを書く" required></textarea><br />
+    <form id="comment-form">
+      <textarea id="comment-input" placeholder="コメントを書く" required></textarea><br />
       <button type="submit">投稿</button>
     </form>
-
-    <div id="posts"></div>
+    <ul id="comment-list"></ul>
   </div>
 
   <script type="module" src="script.js"></script>
